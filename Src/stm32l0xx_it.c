@@ -21,7 +21,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_it.h"
-   
+#include "cfg_uartx.h"
+
 /** @addtogroup STM32L0xx_LL_Examples
   * @{
   */
@@ -108,6 +109,45 @@ void SysTick_Handler(void)
 }*/
 
 
+/**
+  * @Brief   This function handles USARTx Instance interrupt request.
+  * @Param   None
+  * @Retval  None
+  */
+void USART2_IRQHandler(void)
+{
+  /* Check RXNE flag value in ISR register */
+  if(LL_USART_IsActiveFlag_RXNE(USART2) && LL_USART_IsEnabledIT_RXNE(USART2))
+  {
+    /* RXNE flag will be cleared by reading of RDR register (done in call) */
+    /* Call function in charge of handling Character reception */
+		LL_USART_TransmitData8(USART2, LL_USART_ReceiveData8(USART2));
+  }
+  else
+  {
+    /* Call Error function */
+  }
+}
+
+/**
+  * @Brief   This function handles USARTx Instance interrupt request.
+  * @Param   None
+  * @Retval  None
+  */
+void USART1_IRQHandler(void)
+{
+  /* Check RXNE flag value in ISR register */
+  if(LL_USART_IsActiveFlag_RXNE(USART1) && LL_USART_IsEnabledIT_RXNE(USART1))
+  {
+    /* RXNE flag will be cleared by reading of RDR register (done in call) */
+    /* Call function in charge of handling Character reception */
+		LL_USART_TransmitData8(USART1, LL_USART_ReceiveData8(USART1));
+  }
+  else
+  {
+    /* Call Error function */
+  }
+}
 /**
   * @}
   */ 

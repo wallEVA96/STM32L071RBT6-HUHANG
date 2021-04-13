@@ -1,25 +1,6 @@
-/**
-  ******************************************************************************
-  * @file    Templates_LL/Inc/main.h 
-  * @author  MCD Application Team
-  * @brief   Header for main.c module
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
-  */
-  
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __MAIN_H
-#define __MAIN_H
+#ifndef __CFG_UARTX_H
+#define __CFG_UARTX_H
 
 /* Includes ------------------------------------------------------------------*/
 /* LL drivers common to all LL examples */
@@ -48,15 +29,22 @@
 #include "stm32l0xx_ll_tim.h"
 #include "stm32l0xx_ll_usart.h"
 #include "stm32l0xx_ll_wwdg.h"
-
 #if defined(USE_FULL_ASSERT)
 #include "stm32_assert.h"
 #endif /* USE_FULL_ASSERT */
 
-/* Exported types ------------------------------------------------------------*/
-/* Exported constants --------------------------------------------------------*/																							
-/* Exported functions ------------------------------------------------------- */
+/* Exported Defines ------------------------------------------------------------*/
+void Configure_USARTx(USART_TypeDef *USARTx_INSTANCE);
+void Buffer_Transfer_USARTx(USART_TypeDef *USARTx_INSTANCE);
+void TR_Loop_Test_USARTx(USART_TypeDef *USARTx_INSTANCE);
 
-#endif /* __MAIN_H */
+/**
+  * @brief  Function called for achieving TX buffer sending
+  * @param  None
+  * @retval None
+  */
+#include"stdio.h" 
+
+#endif /* __CFG_UARTX_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

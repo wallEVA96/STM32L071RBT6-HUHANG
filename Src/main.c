@@ -1,32 +1,17 @@
 /**
   ******************************************************************************
-  * @file    Templates_LL/Src/main.c 
-  * @author  MCD Application Team
+  * @file    main.c 
+  * @author  walleva hu
   * @brief   Main program body through the LL API
   ******************************************************************************
   * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
   ******************************************************************************
   */
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-
-/** @addtogroup STM32L0xx_LL_Examples
-  * @{
-  */
-
-/** @addtogroup Templates_LL
-  * @{
-  */
+#include "cfg_led.h"
+#include "cfg_uartx.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -34,7 +19,6 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-void Configure_GPIO(void);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -47,38 +31,25 @@ int main(void)
 {
   /* Configure the system clock to 2.097 MHz */
   SystemClock_Config();
-	Configure_GPIO();
+	Configure_LED_GPIO();
+	Configure_USARTx(USART1);
+	Configure_USARTx(USART2);
+	Configure_USARTx(USART4);
+	Configure_USARTx(USART5);
+	
   /* Add your application code here */
-
-
+	printf("Hello, This is a USART2 printf debug\r\n");
+	
   /* Infinite loop */
   while (1)
   {
-		 LL_GPIO_TogglePin(LED5_GPIO_PORT, LED5_PIN);
-		 LL_mDelay(200);
-  }
-}
-/**
-  * @brief  This function configures GPIO
-  * @note   Peripheral configuration is minimal configuration from reset values.
-  *         Thus, some useless LL unitary functions calls below are provided as
-  *         commented examples - setting is default configuration from reset.
-  * @param  None
-  * @retval None
-  */
-void Configure_GPIO(void)
-{
-  /* Enable the LED5 Clock */
-  LED5_GPIO_CLK_ENABLE();
-
-  /* Configure IO in output push-pull mode to drive external LED2 */
-  LL_GPIO_SetPinMode(LED5_GPIO_PORT, LED5_PIN, LL_GPIO_MODE_OUTPUT);
-  /* Reset value is LL_GPIO_OUTPUT_PUSHPULL */
-  //LL_GPIO_SetPinOutputType(LED2_GPIO_PORT, LED2_PIN, LL_GPIO_OUTPUT_PUSHPULL);
-  /* Reset value is LL_GPIO_SPEED_FREQ_LOW */
-  //LL_GPIO_SetPinSpeed(LED2_GPIO_PORT, LED2_PIN, LL_GPIO_SPEED_FREQ_LOW);
-  /* Reset value is LL_GPIO_PULL_NO */
-  //LL_GPIO_SetPinPull(LED2_GPIO_PORT, LED2_PIN, LL_GPIO_PULL_NO);
+		Buffer_Transfer_USARTx(USART5);	
+		TR_Loop_Test_USARTx(USART5);
+		LL_GPIO_TogglePin(LED_GPIO_PORT, LED2_PIN);
+		LL_mDelay(LED_BLINK_SLOW);	
+	}
+	
+	return 0;
 }
 
 /* ==============   BOARD SPECIFIC CONFIGURATION CODE BEGIN    ============== */

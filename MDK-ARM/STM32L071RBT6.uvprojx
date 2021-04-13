@@ -138,7 +138,7 @@
           </Flash1>
           <bUseTDR>1</bUseTDR>
           <Flash2>BIN\UL2CM3.DLL</Flash2>
-          <Flash3></Flash3>
+          <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
           <pFcarmGrp></pFcarmGrp>
@@ -325,7 +325,7 @@
             <uThumb>0</uThumb>
             <uSurpInc>0</uSurpInc>
             <uC99>1</uC99>
-            <uGnu>1</uGnu>
+            <uGnu>0</uGnu>
             <useXO>0</useXO>
             <v6Lang>1</v6Lang>
             <v6LangP>1</v6LangP>
@@ -336,9 +336,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>STM32L073xx,USE_FULL_LL_DRIVER</Define>
+              <Define>STM32L071xx,USE_FULL_LL_DRIVER,USE_FULL_ASSERT</Define>
               <Undefine></Undefine>
-              <IncludePath>..\CMSIS\Device\Include;..\CMSIS\Include;..\Inc;..\LL_Driver\Inc</IncludePath>
+              <IncludePath>..\CMSIS\Device\Include;..\CMSIS\Include;..\Inc;..\LL_Driver\Inc;..\App_Driver\Inc;..\Per_Driver\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -506,6 +506,24 @@
               <FileName>stm32l0xx_it.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\stm32l0xx_it.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>App_Driver</GroupName>
+        </Group>
+        <Group>
+          <GroupName>Per_Driver</GroupName>
+          <Files>
+            <File>
+              <FileName>cfg_uartx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Per_Driver\Src\cfg_uartx.c</FilePath>
+            </File>
+            <File>
+              <FileName>cfg_led.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Per_Driver\Src\cfg_led.c</FilePath>
             </File>
           </Files>
         </Group>

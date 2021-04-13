@@ -1,25 +1,6 @@
-/**
-  ******************************************************************************
-  * @file    Templates_LL/Inc/main.h 
-  * @author  MCD Application Team
-  * @brief   Header for main.c module
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; Copyright (c) 2016 STMicroelectronics.
-  * All rights reserved.</center></h2>
-  *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
-  *
-  ******************************************************************************
-  */
-  
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __MAIN_H
-#define __MAIN_H
+#ifndef __CFG_LED_H
+#define __CFG_LED_H
 
 /* Includes ------------------------------------------------------------------*/
 /* LL drivers common to all LL examples */
@@ -48,15 +29,33 @@
 #include "stm32l0xx_ll_tim.h"
 #include "stm32l0xx_ll_usart.h"
 #include "stm32l0xx_ll_wwdg.h"
-
 #if defined(USE_FULL_ASSERT)
 #include "stm32_assert.h"
 #endif /* USE_FULL_ASSERT */
 
-/* Exported types ------------------------------------------------------------*/
-/* Exported constants --------------------------------------------------------*/																							
-/* Exported functions ------------------------------------------------------- */
+/* Exported Defines ------------------------------------------------------------*/
+/**
+  * @brief LED1
+  */
+	
+#define LED1_PIN                           LL_GPIO_PIN_1
+#define LED2_PIN                           LL_GPIO_PIN_2
+#define LED_GPIO_PORT                     GPIOD
+#define LED_GPIO_CLK_ENABLE()             LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOD)
+/**
+  * @brief LED2
+  */
 
-#endif /* __MAIN_H */
+
+/**
+  * @brief Toggle periods for various blinking modes
+  */
+#define LED_BLINK_FAST  200
+#define LED_BLINK_SLOW  500
+#define LED_BLINK_ERROR 1000
+
+void Configure_LED_GPIO(void);
+
+#endif
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
