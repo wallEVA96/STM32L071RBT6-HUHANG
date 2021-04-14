@@ -177,6 +177,10 @@ void Configure_USARTx(USART_TypeDef *USARTx_INSTANCE)
 		LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_USART5);
 		/* USART4 clock is derived from system clock */
 		
+		/* If disenable relavent interrupt, disable Overrun Detect is a better choice */
+		/* This bit will cause receive error to avoid data lost. */
+		LL_USART_DisableOverrunDetect(USARTx_INSTANCE);
+		
 		/* TX/RX direction */
 		LL_USART_SetTransferDirection(USARTx_INSTANCE, LL_USART_DIRECTION_TX_RX);
 		LL_USART_ConfigCharacter(USARTx_INSTANCE, LL_USART_DATAWIDTH_8B, LL_USART_PARITY_NONE, LL_USART_STOPBITS_1);
@@ -232,8 +236,10 @@ void Buffer_Transfer_USARTx(USART_TypeDef *USARTx_INSTANCE)
 void TR_Loop_Test_USARTx(USART_TypeDef *USARTx_INSTANCE)
 {
 		if(LL_USART_IsActiveFlag_RXNE(USARTx_INSTANCE)){
-			while (!LL_USART_IsActiveFlag_TXE(USARTx_INSTANCE)){}
+			
+			while (!LL_USART_IsActiveFlag_TXE(USARTx_INSTANCE)){}				
 			LL_USART_TransmitData8(USARTx_INSTANCE, LL_USART_ReceiveData8(USARTx_INSTANCE));
+			
 		}
 }
 
