@@ -26,24 +26,7 @@
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-/**
-  * @brief  Loop SYSTEM
-  * @param  None
-  * @retval None
-  */
-int LOOP_TIME_OUT_MS = 5;
-char Loop_Is_Timeout(void)
-{
-	if(LL_SYSTICK_IsActiveCounterFlag())
-	{
-		if(LOOP_TIME_OUT_MS-- == 0)
-		{
-			printf("loop break");
-			return 1;
-		}
-	}
-	return 0;
-}
+
 
 /**
   * @brief  Main program
@@ -151,6 +134,35 @@ void assert_failed(uint8_t *file, uint32_t line)
   {
   }
 }
+
+/**
+  * @brief  Loop time out mechaism.
+	* @note It has a bug, When enter the loop, 
+					but after tick_loop_time reduce, it smaller than out_loop_time. 
+					It can't be clear.
+  * @param  None
+  * @retval None
+  */
+char Loop_Is_Timeout_Xms(int out_loop_time)
+{
+	#define LOOP_TIME_LIMIT 100
+	static float tick_loop_time = LOOP_TIME_LIMIT;
+	if(tick_loop_time >= LOOP_TIME_LIMIT)
+		tick_loop_time = out_loop_time;
+	
+	if(LL_SYSTICK_IsActiveCounterFlag())
+	{
+		tick_loop_time--;
+		if(tick_loop_time == 0)
+		{
+			tick_loop_time = LOOP_TIME_LIMIT;
+			//printf("loop time out break");
+			return 1;
+		}
+	}
+	return 0;
+}
+
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.
