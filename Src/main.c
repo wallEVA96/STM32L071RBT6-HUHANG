@@ -10,17 +10,23 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "math.h"
 #include "cfg_led.h"
 #include "cfg_uartx.h"
+#include "cfg_i2c.h"
+#include "apply_hmcl5883.h"
 
 /* Private typedef -----------------------------------------------------------*/
+
 /* Private define ------------------------------------------------------------*/
+
 /* Private macro -------------------------------------------------------------*/
+
 /* Private variables ---------------------------------------------------------*/
+
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 
-/* Private functions ---------------------------------------------------------*/
 
 /**
   * @brief  Main program
@@ -36,23 +42,28 @@ int main(void)
 	Configure_USARTx(USART2);
 	Configure_USARTx(USART4);
 	Configure_USARTx(USART5);
-	
+	Configure_I2Cx_Master(I2C3);
+	init_hmcl5883(I2C3);
+	//Configure_I2Cx_Slave(I2C1); // loop communication with I2C3 test pass.
+
   /* Add your application code here */
 	printf("Hello, This is a USART2 printf debug\r\n");
+	//Buffer_Transfer_USARTx(USART5);
 	
   /* Infinite loop */
   while (1)
   {
-		Buffer_Transfer_USARTx(USART5);	
+		struct hmcl5883_data tmp_hmcl5883 = get_data_from_hmcl5883(I2C3);
+		printf("hmcl5883 data, x: %d, y: %d, z: %d \r\n", tmp_hmcl5883.x, tmp_hmcl5883.y, tmp_hmcl5883.z);
+		
 		TR_Loop_Test_USARTx(USART5);
 		LL_GPIO_TogglePin(LED_GPIO_PORT, LED2_PIN);
 		LL_mDelay(LED_BLINK_SLOW);	
 	}
-	
 	return 0;
 }
 
-/* ==============   BOARD SPECIFIC CONFIGURATION CODE BEGIN    ============== */
+/* Private functions ---------------------------------------------------------*/
 /**
   * @brief  System Clock Configuration
   *         The system Clock is configured as follow : 
@@ -68,22 +79,20 @@ int main(void)
   */
 void SystemClock_Config(void)
 {
-  /* MSI configuration and activation */
+  /* HSE configuration and activation */
   LL_RCC_PLL_Disable();
   /* Set new latency */
   LL_FLASH_SetLatency(LL_FLASH_LATENCY_1);
 
-  LL_RCC_MSI_Enable();
-  while(LL_RCC_MSI_IsReady() != 1) 
+  LL_RCC_HSE_Enable();
+  while(LL_RCC_HSE_IsReady() != 1) 
   {
   };
-  LL_RCC_MSI_SetRange(LL_RCC_MSIRANGE_5);  
-  LL_RCC_MSI_SetCalibTrimming(0x0);
 
   /* Sysclk activation  */
   LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
-  LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_MSI);
-  while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_MSI) 
+  LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_HSE);
+  while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_HSE) 
   {
   };
   
@@ -92,17 +101,18 @@ void SystemClock_Config(void)
   LL_RCC_SetAPB2Prescaler(LL_RCC_APB2_DIV_1);
 
   /* Set systick to 1ms in using frequency set to 2MHz */
-  LL_Init1msTick(2097000);
+	/* @attention: Disable PLL and DIV */
+  LL_Init1msTick(HSE_VALUE); 
 
   /* Update CMSIS variable (which can be updated also through SystemCoreClockUpdate function) */
-  LL_SetSystemCoreClock(2097000);  
+  LL_SetSystemCoreClock(HSE_VALUE);  
 
   /* Enable Power Control clock */
   LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
   /* The voltage scaling allows optimizing the power consumption when the device is 
-     clocked below the maximum system frequency, to update the voltage scaling value 
-     regarding system frequency refer to product datasheet.  */
-  LL_PWR_SetRegulVoltageScaling(LL_PWR_REGU_VOLTAGE_SCALE3);
+     clocked below the maximum system frequency.
+		 To update the voltage scaling value regarding system frequency refer to product datasheet.  */
+  LL_PWR_SetRegulVoltageScaling(LL_PWR_REGU_VOLTAGE_SCALE2);
 }
 /* ==============   BOARD SPECIFIC CONFIGURATION CODE END      ============== */
 
@@ -125,13 +135,4 @@ void assert_failed(uint8_t *file, uint32_t line)
   }
 }
 #endif
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
-
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
