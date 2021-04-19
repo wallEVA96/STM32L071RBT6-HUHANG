@@ -31,6 +31,9 @@
 #include "stm32l0xx_ll_wwdg.h"
 #if defined(USE_FULL_ASSERT)
 #include "stm32_assert.h"
+#include "stdio.h"
+#include "main.h"
+
 #endif /* USE_FULL_ASSERT */
 
 /* Exported Defines ------------------------------------------------------------*/

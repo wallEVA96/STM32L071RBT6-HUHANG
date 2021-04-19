@@ -26,7 +26,24 @@
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-
+/**
+  * @brief  Loop SYSTEM
+  * @param  None
+  * @retval None
+  */
+int LOOP_TIME_OUT_MS = 5;
+char Loop_Is_Timeout(void)
+{
+	if(LL_SYSTICK_IsActiveCounterFlag())
+	{
+		if(LOOP_TIME_OUT_MS-- == 0)
+		{
+			printf("loop break");
+			return 1;
+		}
+	}
+	return 0;
+}
 
 /**
   * @brief  Main program
@@ -35,7 +52,7 @@ void SystemClock_Config(void);
   */
 int main(void)
 {
-  /* Configure the system clock to 2.097 MHz */
+  /* Configure the system clock to 8 MHz */
   SystemClock_Config();
 	Configure_LED_GPIO();
 	Configure_USARTx(USART1);
@@ -134,5 +151,12 @@ void assert_failed(uint8_t *file, uint32_t line)
   {
   }
 }
+/**
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
 #endif
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

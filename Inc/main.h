@@ -52,7 +52,7 @@
 #if defined(USE_FULL_ASSERT)
 #include "stm32_assert.h"
 #endif /* USE_FULL_ASSERT */
-
+extern int LOOP_TIME_OUT_MS;
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/																							
 /* Exported functions ------------------------------------------------------- */

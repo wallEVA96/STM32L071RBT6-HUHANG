@@ -7,6 +7,7 @@
   */
  /* Includes ------------------------------------------------------------------*/
 #include "cfg_i2c.h"
+extern char Loop_Is_Timeout(void);
 
 /* Private typedef -----------------------------------------------------------*/
 
@@ -82,7 +83,7 @@ void Configure_I2Cx_Master(I2C_TypeDef *I2Cx)
   /* (uint32_t)0x00601B28 = I2C_TIMING*/
 	uint32_t timing = __LL_I2C_CONVERT_TIMINGS(0x0, 0x6, 0x0, 0x1B, 0x28);
 
-  LL_I2C_SetTiming(I2C3, I2C_TIMING);
+  LL_I2C_SetTiming(I2C3, timing);
 
   /* Configure the Own Address1                   */
   /* Reset Values of :
@@ -267,6 +268,7 @@ void I2C_Write(I2C_TypeDef *I2Cx, unsigned char slave_addr, unsigned char reg_ad
   LL_I2C_HandleTransfer(I2Cx, slave_addr, LL_I2C_ADDRSLAVE_7BIT, data_size, LL_I2C_MODE_AUTOEND, LL_I2C_GENERATE_START_WRITE);
 
   /* Loop until STOP flag is raised  */
+	LOOP_TIME_OUT_MS = 3;
   while(!LL_I2C_IsActiveFlag_STOP(I2Cx))
   {
     /* Check TXIS flag value in ISR register */
@@ -285,6 +287,8 @@ void I2C_Write(I2C_TypeDef *I2Cx, unsigned char slave_addr, unsigned char reg_ad
       LL_I2C_TransmitData8(I2Cx, reg_data);
 			data_size--;
     }
+		if(Loop_Is_Timeout())
+			break;
   }
   /* (3) Clear pending flags, Data consistency are checking into Slave process */
 
@@ -313,6 +317,7 @@ unsigned char I2C_Read(I2C_TypeDef *I2Cx, unsigned char slave_addr, unsigned cha
 
   /* Loop until STOP flag is raised  */
 	/* This loop is dangerous when power support is terrrible. */
+	LOOP_TIME_OUT_MS = 3;
   while(!LL_I2C_IsActiveFlag_TC(I2Cx))
 	{
     /* Check TXIS flag value in ISR register */
@@ -323,17 +328,24 @@ unsigned char I2C_Read(I2C_TypeDef *I2Cx, unsigned char slave_addr, unsigned cha
       LL_I2C_TransmitData8(I2Cx, reg_addr);
 			data_size--;
     }
+		if(Loop_Is_Timeout())
+			break;
   }
 	
 	data_size = 1;
 	LL_I2C_HandleTransfer(I2Cx, slave_addr, LL_I2C_ADDRSLAVE_7BIT, data_size, LL_I2C_MODE_AUTOEND, LL_I2C_GENERATE_START_READ);
   /* Loop until STOP flag is raised  */
-	while(!LL_I2C_IsActiveFlag_STOP(I2Cx)){}
+	LOOP_TIME_OUT_MS = 3;
+	while(!LL_I2C_IsActiveFlag_STOP(I2Cx))
+	{
+		if(Loop_Is_Timeout())
+			break;
+	}
 	if(LL_I2C_IsActiveFlag_RXNE(I2Cx))
 			read_byte = LL_I2C_ReceiveData8(I2Cx);
   /* (3) Clear pending flags, Data consistency are checking into Slave process */
   LL_I2C_ClearFlag_STOP(I2Cx);
-	
+
 	return read_byte;
 }
 /************************ (C) COPYRIGHT wallea Hu *****END OF FILE****/
