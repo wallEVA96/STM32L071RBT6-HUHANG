@@ -511,6 +511,13 @@
         </Group>
         <Group>
           <GroupName>App_Driver</GroupName>
+          <Files>
+            <File>
+              <FileName>apply_hmcl5883.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\App_Driver\Src\apply_hmcl5883.c</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>Per_Driver</GroupName>
@@ -524,6 +531,11 @@
               <FileName>cfg_led.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Per_Driver\Src\cfg_led.c</FilePath>
+            </File>
+            <File>
+              <FileName>cfg_i2c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Per_Driver\Src\cfg_i2c.c</FilePath>
             </File>
           </Files>
         </Group>
