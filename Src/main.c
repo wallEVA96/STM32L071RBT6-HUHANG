@@ -23,10 +23,11 @@
 /* Private macro -------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
+unsigned int GLOBAL_LOOP_TIME_OUT_VAL = 0;
+
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-
 
 /**
   * @brief  Main program
@@ -44,21 +45,21 @@ int main(void)
 	Configure_USARTx(USART5);
 	Configure_I2Cx_Master(I2C3);
 	init_hmcl5883(I2C3);
+
 	//Configure_I2Cx_Slave(I2C1); // loop communication with I2C3 test pass.
 
   /* Add your application code here */
 	printf("Hello, This is a USART2 printf debug\r\n");
-	//Buffer_Transfer_USARTx(USART5);
-	
+	Buffer_Transfer_USARTx(USART5);
+
   /* Infinite loop */
   while (1)
   {
 		struct hmcl5883_data tmp_hmcl5883 = get_data_from_hmcl5883(I2C3);
 		printf("hmcl5883 data, x: %d, y: %d, z: %d \r\n", tmp_hmcl5883.x, tmp_hmcl5883.y, tmp_hmcl5883.z);
-		
+		LL_mDelay(LED_BLINK_SLOW);		
 		TR_Loop_Test_USARTx(USART5);
-		LL_GPIO_TogglePin(LED_GPIO_PORT, LED2_PIN);
-		LL_mDelay(LED_BLINK_SLOW);	
+		LL_GPIO_TogglePin(LED_GPIO_PORT, LED2_PIN);	
 	}
 	return 0;
 }
@@ -136,33 +137,18 @@ void assert_failed(uint8_t *file, uint32_t line)
 }
 
 /**
-  * @brief  Loop time out mechaism.
-	* @note It has a bug, When enter the loop, 
-					but after tick_loop_time reduce, it smaller than out_loop_time. 
-					It can't be clear.
-  * @param  None
+  * @brief  
+  * @param  
+  * @param  
   * @retval None
   */
-char Loop_Is_Timeout_Xms(int out_loop_time)
+char LOOP_IS_TIME_OUT_xMS(void)
 {
-	#define LOOP_TIME_LIMIT 100
-	static float tick_loop_time = LOOP_TIME_LIMIT;
-	if(tick_loop_time >= LOOP_TIME_LIMIT)
-		tick_loop_time = out_loop_time;
-	
+  /* Infinite loop */
 	if(LL_SYSTICK_IsActiveCounterFlag())
-	{
-		tick_loop_time--;
-		if(tick_loop_time == 0)
-		{
-			tick_loop_time = LOOP_TIME_LIMIT;
-			//printf("loop time out break");
-			return 1;
-		}
-	}
-	return 0;
+		GLOBAL_LOOP_TIME_OUT_VAL--;
+	return (GLOBAL_LOOP_TIME_OUT_VAL==0)?1:0;
 }
-
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.

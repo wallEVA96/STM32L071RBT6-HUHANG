@@ -54,10 +54,12 @@
 #endif /* USE_FULL_ASSERT */
 
 /* Exported types ------------------------------------------------------------*/
+extern unsigned int GLOBAL_LOOP_TIME_OUT_VAL;
 /* Exported constants --------------------------------------------------------*/																							
 /* Exported functions ------------------------------------------------------- */
-extern char Loop_Is_Timeout_Xms(int out_loop_time);
+char LOOP_IS_TIME_OUT_xMS(void);
 
+/* Exported define ------------------------------------------------------- */
 #endif /* __MAIN_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -248,7 +248,6 @@ void I2C1_IRQHandler(void)
   }
 }
 
-
 /**
   * @}
   */ 
