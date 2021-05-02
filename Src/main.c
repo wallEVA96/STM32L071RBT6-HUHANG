@@ -14,6 +14,7 @@
 #include "cfg_led.h"
 #include "cfg_uartx.h"
 #include "cfg_i2c.h"
+#include "cfg_adc.h"
 #include "apply_hmcl5883.h"
 
 /* Private typedef -----------------------------------------------------------*/
@@ -25,7 +26,6 @@
 /* Private variables ---------------------------------------------------------*/
 unsigned int GLOBAL_LOOP_TIME_OUT_VAL = 0;
 
-
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 
@@ -34,6 +34,8 @@ void SystemClock_Config(void);
   * @param  None
   * @retval None
   */
+extern __IO uint16_t aADCxConvertedData[3]; /* ADC group regular conversion data */
+
 int main(void)
 {
   /* Configure the system clock to 8 MHz */
@@ -44,19 +46,23 @@ int main(void)
 	Configure_USARTx(USART4);
 	Configure_USARTx(USART5);
 	Configure_I2Cx_Master(I2C3);
-	init_hmcl5883(I2C3);
-
 	//Configure_I2Cx_Slave(I2C1); // loop communication with I2C3 test pass.
+	init_hmcl5883(I2C3);
+	Configure_ADC1_TO_DMA();
+	Configure_ADC1();
+	Activate_ADC1();
 
   /* Add your application code here */
 	printf("Hello, This is a USART2 printf debug\r\n");
 	Buffer_Transfer_USARTx(USART5);
-
+	
   /* Infinite loop */
   while (1)
   {
-		struct hmcl5883_data tmp_hmcl5883 = get_data_from_hmcl5883(I2C3);
-		printf("hmcl5883 data, x: %d, y: %d, z: %d \r\n", tmp_hmcl5883.x, tmp_hmcl5883.y, tmp_hmcl5883.z);
+		//struct hmcl5883_data tmp_hmcl5883 = get_data_from_hmcl5883(I2C3);
+		//printf("hmcl5883 data, x: %d, y: %d, z: %d \r\n", tmp_hmcl5883.x, tmp_hmcl5883.y, tmp_hmcl5883.z);
+		struct adc1_data cal_ad_data = ConversionStartPoll_ADC1_GrpRegular();
+		printf("vref: %d, chn4: %d, temp: %d \r", cal_ad_data.vref, cal_ad_data.chn4, cal_ad_data.temp);
 		LL_mDelay(LED_BLINK_SLOW);		
 		TR_Loop_Test_USARTx(USART5);
 		LL_GPIO_TogglePin(LED_GPIO_PORT, LED2_PIN);	

@@ -151,103 +151,32 @@ void USART1_IRQHandler(void)
 }
 
 /**
-  * Brief   This function handles I2C3 (Master) interrupt request.
-  * Param   None
-  * Retval  None
+  * @brief  This function handles DMA1 interrupt request.
+  * @param  None
+  * @retval None
   */
-void I2C3_IRQHandler(void)
-{	
-//  /* Check RXNE flag value in ISR register */
-//  if(LL_I2C_IsActiveFlag_RXNE(I2C3))
-//  {
-//    /* Call function Master Reception Callback */
-//    printf("%d\r", LL_I2C_ReceiveData8(I2C3));
-//  }
-//  /* Check STOP flag value in ISR register */
-//  else if(LL_I2C_IsActiveFlag_STOP(I2C3))
-//  {
-//    /* End of Transfer */
-//    LL_I2C_ClearFlag_STOP(I2C3);
-
-//    /* Call function Master Complete Callback */
-//		/* Read Received character.
-//		RXNE flag is cleared by reading of RXDR register */
-//  }
-//  else
-//  {
-//    /* Call Error function */
-//    /* Disable I2C1_IRQn and I2C3_IRQn */
-//		NVIC_DisableIRQ(I2C3_IRQn);
-//  }
-}
-
-void I2C1_IRQHandler(void)
+extern __IO uint8_t itDmaTransferStatus; /* Variable set into DMA interruption callback */
+void DMA1_Channel1_IRQHandler(void)
 {
-  /* Check ADDR flag value in ISR register */
-  if(LL_I2C_IsActiveFlag_ADDR(I2C1))
+	  /* Check whether DMA transfer complete caused the DMA interruption */
+  if(LL_DMA_IsActiveFlag_TC1(DMA1) == 1)
   {
-    /* Verify the Address Match with the OWN Slave address */
-    if(LL_I2C_GetAddressMatchCode(I2C1) == SLAVE_OWN_ADDRESS)
-    {
-      /* Verify the transfer direction, a read direction, Slave enters transmitter mode */
-      if(LL_I2C_GetTransferDirection(I2C1) == LL_I2C_DIRECTION_READ)
-      {
-        /* Clear ADDR flag value in ISR register */
-        LL_I2C_ClearFlag_ADDR(I2C1);
-
-        /* Enable Transmit Interrupt */
-        LL_I2C_EnableIT_TX(I2C1);
-      }
-      else
-      {
-        /* Clear ADDR flag value in ISR register */
-        LL_I2C_ClearFlag_ADDR(I2C1);
-
-        /* Call Error function */
-				NVIC_DisableIRQ(I2C1_IRQn);
-      }
-    }
-    else
-    {
-      /* Clear ADDR flag value in ISR register */
-      LL_I2C_ClearFlag_ADDR(I2C1);
-        
-      /* Call Error function */
-      NVIC_DisableIRQ(I2C1_IRQn);
-    }
+    /* Clear flag DMA global interrupt */
+    /* (global interrupt flag: half transfer and transfer complete flags) */
+    LL_DMA_ClearFlag_GI1(DMA1);
+    
+    /* Call interruption treatment function */
+     itDmaTransferStatus = 1;
   }
-  /* Check NACK flag value in ISR register */
-  else if(LL_I2C_IsActiveFlag_NACK(I2C1))
+  /* Check whether DMA transfer error caused the DMA interruption */
+  if(LL_DMA_IsActiveFlag_TE1(DMA1) == 1)
   {
-    /* End of Transfer */
-    LL_I2C_ClearFlag_NACK(I2C1);
-  }
-  /* Check TXIS flag value in ISR register */
-  else if(LL_I2C_IsActiveFlag_TXIS(I2C1))
-  {
-    /* Call function Slave Ready to Transmit Callback */
-		LL_I2C_TransmitData8(I2C1, 0x96);
-  }
-  /* Check STOP flag value in ISR register */
-  else if(LL_I2C_IsActiveFlag_STOP(I2C1))
-  {
-    /* Clear STOP flag value in ISR register */
-    LL_I2C_ClearFlag_STOP(I2C1);
-  }
-  /* Check TXE flag value in ISR register */
-  else if(!LL_I2C_IsActiveFlag_TXE(I2C1))
-  {
-    /* Do nothing */
-    /* This Flag will be set by hardware when the TXDR register is empty */
-    /* If needed, use LL_I2C_ClearFlag_TXE() interface to flush the TXDR register  */
-  }
-  else
-  {
-    /* Call Error function */
-		NVIC_DisableIRQ(I2C3_IRQn);
+    /* Clear flag DMA transfer error */
+    LL_DMA_ClearFlag_TE1(DMA1);
+    
+    /* Call interruption treatment function */
   }
 }
-
 /**
   * @}
   */ 
