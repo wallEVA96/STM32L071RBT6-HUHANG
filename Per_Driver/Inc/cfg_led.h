@@ -40,12 +40,8 @@
 	
 #define LED1_PIN                           LL_GPIO_PIN_1
 #define LED2_PIN                           LL_GPIO_PIN_2
-#define LED_GPIO_PORT                     GPIOD
-#define LED_GPIO_CLK_ENABLE()             LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOD)
-/**
-  * @brief LED2
-  */
-
+#define LED_GPIO_PORT                      GPIOD
+#define LED_GPIO_CLK_ENABLE()              LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOD)
 
 /**
   * @brief Toggle periods for various blinking modes

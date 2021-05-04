@@ -15,6 +15,7 @@
 #include "cfg_uartx.h"
 #include "cfg_i2c.h"
 #include "cfg_adc.h"
+#include "soft_i2c.h"
 #include "apply_hmcl5883.h"
 
 /* Private typedef -----------------------------------------------------------*/
@@ -51,7 +52,13 @@ int main(void)
 	Configure_ADC1_TO_DMA();
 	Configure_ADC1();
 	Activate_ADC1();
+	Configure_SOFT_IIC_GPIO();
+//  soft i2c write test.	
+//	Common_WriteByte(0x1e, 0x00, 0x10);
+//	Common_WriteByte(0x1e, 0x02, 0x10);
 
+	//Common_ReadByte(0x1e, 0x00, uint8_t *data);
+	
   /* Add your application code here */
 	printf("Hello, This is a USART2 printf debug\r\n");
 	Buffer_Transfer_USARTx(USART5);
@@ -61,6 +68,11 @@ int main(void)
   {
 		//struct hmcl5883_data tmp_hmcl5883 = get_data_from_hmcl5883(I2C3);
 		//printf("hmcl5883 data, x: %d, y: %d, z: %d \r\n", tmp_hmcl5883.x, tmp_hmcl5883.y, tmp_hmcl5883.z);
+		
+//  soft i2c read test.
+//  uint8_t tmp = 0;
+//  Common_ReadByte(0x1e, 0x0a, &tmp);
+		
 		struct adc1_data cal_ad_data = ConversionStartPoll_ADC1_GrpRegular();
 		printf("vref: %d, chn4: %d, temp: %d \r", cal_ad_data.vref, cal_ad_data.chn4, cal_ad_data.temp);
 		LL_mDelay(LED_BLINK_SLOW);		
