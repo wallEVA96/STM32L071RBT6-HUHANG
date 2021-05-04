@@ -39,25 +39,31 @@ extern __IO uint16_t aADCxConvertedData[3]; /* ADC group regular conversion data
 
 int main(void)
 {
-  /* Configure the system clock to 8 MHz */
+  /* Configure the system clock to external crytal 8 MHz */
   SystemClock_Config();
+	/* Configure LED on PD2 */
 	Configure_LED_GPIO();
+	/* Configure USART */
 	Configure_USARTx(USART1);
 	Configure_USARTx(USART2);
 	Configure_USARTx(USART4);
 	Configure_USARTx(USART5);
+	/* Configure Hardware I2C Master */
 	Configure_I2Cx_Master(I2C3);
-	//Configure_I2Cx_Slave(I2C1); // loop communication with I2C3 test pass.
+	/* Configure Hardware I2C Slave, 
+		 Slaver I2C1 do loop communication with master I2C3,
+		 Test pass. 
+	*/
+	//Configure_I2Cx_Slave(I2C1);
 	init_hmcl5883(I2C3);
+	/* Configure ADC1 about Vref, Channel 4 on PA4.
+		 Test on tempetature in 68'C, voltage in 3.3v.
+		 Adc data include vref, temp, channel 4 are normal. */
 	Configure_ADC1_TO_DMA();
 	Configure_ADC1();
 	Activate_ADC1();
+	/* soft i2c configure.	 */
 	Configure_SOFT_IIC_GPIO();
-//  soft i2c write test.	
-//	Common_WriteByte(0x1e, 0x00, 0x10);
-//	Common_WriteByte(0x1e, 0x02, 0x10);
-
-	//Common_ReadByte(0x1e, 0x00, uint8_t *data);
 	
   /* Add your application code here */
 	printf("Hello, This is a USART2 printf debug\r\n");
@@ -66,10 +72,12 @@ int main(void)
   /* Infinite loop */
   while (1)
   {
-		//struct hmcl5883_data tmp_hmcl5883 = get_data_from_hmcl5883(I2C3);
-		//printf("hmcl5883 data, x: %d, y: %d, z: %d \r\n", tmp_hmcl5883.x, tmp_hmcl5883.y, tmp_hmcl5883.z);
+//	struct hmcl5883_data tmp_hmcl5883 = get_data_from_hmcl5883(I2C3);
+//	printf("hmcl5883 data, x: %d, y: %d, z: %d \r\n", tmp_hmcl5883.x, tmp_hmcl5883.y, tmp_hmcl5883.z);	
 		
-//  soft i2c read test.
+		/* soft i2c write hmcl5883 test.	 */
+//	Common_WriteByte(0x1e, 0x00, 0x10);
+//	Common_WriteByte(0x1e, 0x02, 0x10);
 //  uint8_t tmp = 0;
 //  Common_ReadByte(0x1e, 0x0a, &tmp);
 		
