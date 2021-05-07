@@ -63,7 +63,11 @@ int main(void)
 	Configure_ADC1();
 	Activate_ADC1();
 	/* soft i2c configure.	 */
-	Configure_SOFT_IIC_GPIO();
+	#define IIC_SCL_GPIOx 			GPIOC
+	#define SCL_PIN 						LL_GPIO_PIN_6
+	#define IIC_SDA_GPIOx 			GPIOC
+	#define SDA_PIN 						LL_GPIO_PIN_9
+	Configure_SOFT_IIC_GPIO(IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
 	
   /* Add your application code here */
 	printf("Hello, This is a USART2 printf debug\r\n");
@@ -72,17 +76,21 @@ int main(void)
   /* Infinite loop */
   while (1)
   {
+		/* periph i2c write hmcl5883 test.	 */
 //	struct hmcl5883_data tmp_hmcl5883 = get_data_from_hmcl5883(I2C3);
 //	printf("hmcl5883 data, x: %d, y: %d, z: %d \r\n", tmp_hmcl5883.x, tmp_hmcl5883.y, tmp_hmcl5883.z);	
 		
 		/* soft i2c write hmcl5883 test.	 */
-//	Common_WriteByte(0x1e, 0x00, 0x10);
-//	Common_WriteByte(0x1e, 0x02, 0x10);
-//  uint8_t tmp = 0;
-//  Common_ReadByte(0x1e, 0x0a, &tmp);
+		Common_WriteByte(0x1e, 0x00, 0x10, IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
+		Common_WriteByte(0x1e, 0x02, 0x00, IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
+		uint8_t tmp = 0;
+		Common_ReadByte(0x1e, 0x04, &tmp, IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
+		printf("hmcl id: %02x \r",  tmp);
 		
+		/* adc sample include vref:  chn4:  temp: */
 		struct adc1_data cal_ad_data = ConversionStartPoll_ADC1_GrpRegular();
 		printf("vref: %d, chn4: %d, temp: %d \r", cal_ad_data.vref, cal_ad_data.chn4, cal_ad_data.temp);
+		
 		LL_mDelay(LED_BLINK_SLOW);		
 		TR_Loop_Test_USARTx(USART5);
 		LL_GPIO_TogglePin(LED_GPIO_PORT, LED2_PIN);	

@@ -10,18 +10,18 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
-#define IIC_GPIO_CLK				LL_IOP_GRP1_PERIPH_GPIOC
-#define IIC_SCL_GPIOx 			GPIOC
-#define SCL_PIN 						LL_GPIO_PIN_6
-#define IIC_SDA_GPIOx 			GPIOC
-#define SDA_PIN 						LL_GPIO_PIN_9
-
-#define SCL_H         LL_GPIO_SetOutputPin(IIC_SCL_GPIOx,   SCL_PIN)
-#define SCL_L         LL_GPIO_ResetOutputPin(IIC_SCL_GPIOx, SCL_PIN)
-#define SDA_H         LL_GPIO_SetOutputPin(IIC_SDA_GPIOx,   SDA_PIN)
-#define SDA_L         LL_GPIO_ResetOutputPin(IIC_SDA_GPIOx, SDA_PIN)
-#define SCL_READ      LL_GPIO_IsInputPinSet(IIC_SCL_GPIOx,  SCL_PIN)
-#define SDA_READ   		LL_GPIO_IsInputPinSet(IIC_SDA_GPIOx,  SDA_PIN)
+//#define IIC_SCL_GPIO_CLK		LL_IOP_GRP1_PERIPH_GPIOC
+//#define IIC_SDA_GPIO_CLK		LL_IOP_GRP1_PERIPH_GPIOC
+//#define IIC_SCL_GPIOx 			GPIOC
+//#define SCL_PIN 						LL_GPIO_PIN_6
+//#define IIC_SDA_GPIOx 			GPIOC
+//#define SDA_PIN 						LL_GPIO_PIN_9
+#define SCL_H(IIC_SCL_GPIOx, SCL_PIN)         LL_GPIO_SetOutputPin(IIC_SCL_GPIOx,   SCL_PIN)
+#define SCL_L(IIC_SCL_GPIOx, SCL_PIN)         LL_GPIO_ResetOutputPin(IIC_SCL_GPIOx, SCL_PIN)
+#define SDA_H(IIC_SDA_GPIOx, SDA_PIN)         LL_GPIO_SetOutputPin(IIC_SDA_GPIOx,   SDA_PIN)
+#define SDA_L(IIC_SDA_GPIOx, SDA_PIN)         LL_GPIO_ResetOutputPin(IIC_SDA_GPIOx, SDA_PIN)
+#define SCL_READ(IIC_SCL_GPIOx, SCL_PIN)      LL_GPIO_IsInputPinSet(IIC_SCL_GPIOx,  SCL_PIN)
+#define SDA_READ(IIC_SDA_GPIOx, SDA_PIN)   		LL_GPIO_IsInputPinSet(IIC_SDA_GPIOx,  SDA_PIN)
 
 /* Private variables ---------------------------------------------------------*/
 /* Private function  -----------------------------------------------*/
@@ -45,11 +45,18 @@ __STATIC_INLINE void I2C_DELAY(void){
   * @retval None
   */
 
-void Configure_SOFT_IIC_GPIO()
+void Configure_SOFT_IIC_GPIO(GPIO_TypeDef *IIC_SDA_GPIOx, uint32_t SDA_PIN,
+														 GPIO_TypeDef *IIC_SCL_GPIOx, uint32_t SCL_PIN)
 {
   /* Enable the GPIOC Clock */
-	LL_IOP_GRP1_EnableClock(IIC_GPIO_CLK);
-
+	if(IIC_SDA_GPIOx == GPIOA || IIC_SCL_GPIOx == GPIOA)
+		LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOA);
+	if(IIC_SDA_GPIOx == GPIOB || IIC_SCL_GPIOx == GPIOB)
+		LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOB);
+	if(IIC_SDA_GPIOx == GPIOC || IIC_SCL_GPIOx == GPIOC)
+		LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOC);
+	if(IIC_SDA_GPIOx == GPIOD || IIC_SCL_GPIOx == GPIOD)
+		LL_IOP_GRP1_EnableClock(LL_IOP_GRP1_PERIPH_GPIOC);
   /* Configure SCL Pin as : High Speed, Open drain, Pull up */
   LL_GPIO_SetPinMode(IIC_SCL_GPIOx, SCL_PIN, LL_GPIO_MODE_OUTPUT);
   LL_GPIO_SetPinSpeed(IIC_SCL_GPIOx, SCL_PIN, LL_GPIO_SPEED_FREQ_HIGH);
@@ -60,8 +67,8 @@ void Configure_SOFT_IIC_GPIO()
   LL_GPIO_SetPinSpeed(IIC_SDA_GPIOx, SDA_PIN, LL_GPIO_SPEED_FREQ_HIGH);
   LL_GPIO_SetPinOutputType(IIC_SDA_GPIOx, SDA_PIN, LL_GPIO_OUTPUT_OPENDRAIN);
   LL_GPIO_SetPinPull(IIC_SDA_GPIOx, SDA_PIN, LL_GPIO_PULL_UP);
-	SCL_H;
-	SDA_H;
+	SCL_H(IIC_SCL_GPIOx, SCL_PIN);
+	SDA_H(IIC_SDA_GPIOx, SDA_PIN);
 	I2C_DELAY();
 }
 
@@ -70,31 +77,32 @@ void Configure_SOFT_IIC_GPIO()
   * @param  None
   * @retval None
   */
-#define I2C_SET_SDA_IN  LL_GPIO_SetPinMode(IIC_SDA_GPIOx, SDA_PIN, LL_GPIO_MODE_INPUT)
-#define I2C_SET_SDA_OUT LL_GPIO_SetPinMode(IIC_SDA_GPIOx, SDA_PIN, LL_GPIO_MODE_OUTPUT)
+#define I2C_SET_SDA_IN(IIC_SDA_GPIOx, SDA_PIN)  LL_GPIO_SetPinMode(IIC_SDA_GPIOx, SDA_PIN, LL_GPIO_MODE_INPUT)
+#define I2C_SET_SDA_OUT(IIC_SDA_GPIOx,SDA_PIN)  LL_GPIO_SetPinMode(IIC_SDA_GPIOx, SDA_PIN, LL_GPIO_MODE_OUTPUT)
 
 /**
   * @brief  This function configures IIC Start
   * @param  None
   * @retval None
   */
-int I2C_Start(void)
+static int I2C_Start(GPIO_TypeDef *IIC_SDA_GPIOx, uint32_t SDA_PIN,
+										 GPIO_TypeDef *IIC_SCL_GPIOx, uint32_t SCL_PIN)
 {
-	I2C_SET_SDA_OUT;
-	SDA_H;
-	SCL_H;
+	I2C_SET_SDA_OUT(IIC_SDA_GPIOx, SDA_PIN);
+	SDA_H(IIC_SDA_GPIOx, SDA_PIN);
+	SCL_H(IIC_SCL_GPIOx, SCL_PIN);
 	I2C_DELAY();
-	if(!SDA_READ)
+	if(!SDA_READ(IIC_SDA_GPIOx, SDA_PIN))
 	{
 		return 0;
 	}
-	SDA_L;
+	SDA_L(IIC_SDA_GPIOx, SDA_PIN);
 	I2C_DELAY();
-	if(SDA_READ)
+	if(SDA_READ(IIC_SDA_GPIOx, SDA_PIN))
 	{
 		return 0;
 	}
-	SCL_L;
+	SCL_L(IIC_SCL_GPIOx, SCL_PIN);
 	return 1;
 }
 
@@ -103,15 +111,16 @@ int I2C_Start(void)
   * @param  None
   * @retval None
   */
-void I2C_Stop(void)
+static void I2C_Stop(GPIO_TypeDef *IIC_SDA_GPIOx, uint32_t SDA_PIN,
+										 GPIO_TypeDef *IIC_SCL_GPIOx, uint32_t SCL_PIN)
 {
-	I2C_SET_SDA_OUT;
+	I2C_SET_SDA_OUT(IIC_SDA_GPIOx,SDA_PIN);
 	//SCL_L;
-	SDA_L;	
-	SCL_H;
+	SDA_L(IIC_SDA_GPIOx, SDA_PIN);
+	SCL_H(IIC_SCL_GPIOx, SCL_PIN);
 	I2C_DELAY();
 
-	SDA_H;
+	SDA_H(IIC_SDA_GPIOx, SDA_PIN);
 	I2C_DELAY();	
 }
 
@@ -120,15 +129,16 @@ void I2C_Stop(void)
   * @param  None
   * @retval None
   */
-static void I2C_Ack()
+static void I2C_Ack(GPIO_TypeDef *IIC_SDA_GPIOx, uint32_t SDA_PIN,
+										GPIO_TypeDef *IIC_SCL_GPIOx, uint32_t SCL_PIN)
 {
-	SCL_L;
-	I2C_SET_SDA_OUT;
-	SDA_L;
+	SCL_L(IIC_SCL_GPIOx, SCL_PIN);
+	I2C_SET_SDA_OUT(IIC_SDA_GPIOx,SDA_PIN);
+	SDA_L(IIC_SDA_GPIOx, SDA_PIN);
 	I2C_DELAY();
-	SCL_H;
+	SCL_H(IIC_SCL_GPIOx, SCL_PIN);
 	I2C_DELAY();
-	SCL_L;
+	SCL_L(IIC_SCL_GPIOx, SCL_PIN);
 }
 
 /**
@@ -136,17 +146,18 @@ static void I2C_Ack()
   * @param  None
   * @retval None
   */
-static void I2C_NoAck()
+static void I2C_NoAck(GPIO_TypeDef *IIC_SDA_GPIOx, uint32_t SDA_PIN,
+										  GPIO_TypeDef *IIC_SCL_GPIOx, uint32_t SCL_PIN)
 {
-	SCL_L;
-	I2C_SET_SDA_OUT;
+	SCL_L(IIC_SCL_GPIOx, SCL_PIN);
+	I2C_SET_SDA_OUT(IIC_SDA_GPIOx,SDA_PIN);
 	
 	I2C_DELAY();
-	SDA_H;
+	SDA_H(IIC_SDA_GPIOx, SDA_PIN);
 	I2C_DELAY();
-	SCL_H;
+	SCL_H(IIC_SCL_GPIOx, SCL_PIN);
 	I2C_DELAY();
-	SCL_L;
+	SCL_L(IIC_SCL_GPIOx, SCL_PIN);
 }
 
 /**
@@ -154,24 +165,25 @@ static void I2C_NoAck()
   * @param  None
   * @retval None
   */
-uint8_t I2C_GetAck(void)
+static uint8_t I2C_GetAck(GPIO_TypeDef *IIC_SDA_GPIOx, uint32_t SDA_PIN,
+									 GPIO_TypeDef *IIC_SCL_GPIOx, uint32_t SCL_PIN)
 {
   uint8_t times = 0;
 	
-	I2C_SET_SDA_IN;
-	SDA_H;
-	SCL_H;
+	I2C_SET_SDA_IN(IIC_SDA_GPIOx, SDA_PIN);
+	SDA_H(IIC_SDA_GPIOx, SDA_PIN);
+	SCL_H(IIC_SCL_GPIOx, SCL_PIN);
 	I2C_DELAY();
-	while(SDA_READ)
+	while(SDA_READ(IIC_SDA_GPIOx, SDA_PIN))
 	{
 		times++;
 		if(times> 250)
 		{			
-			SCL_L;
+			SCL_L(IIC_SCL_GPIOx, SCL_PIN);
 			return 0;
 		}
 	}
-	SCL_L;
+	SCL_L(IIC_SCL_GPIOx, SCL_PIN);
 	return 1;
 }
 /**
@@ -179,29 +191,31 @@ uint8_t I2C_GetAck(void)
   * @param  None
   * @retval None
   */
-void I2C_WriteByte(uint8_t Data)
+static void I2C_WriteByte(uint8_t Data,
+									 GPIO_TypeDef *IIC_SDA_GPIOx, uint32_t SDA_PIN,
+									 GPIO_TypeDef *IIC_SCL_GPIOx, uint32_t SCL_PIN)
 {
   uint8_t cnt = 0;
 	
-  I2C_SET_SDA_OUT;
+  I2C_SET_SDA_OUT(IIC_SDA_GPIOx,SDA_PIN);
   for(cnt=0; cnt<8; cnt++)
   {
-    SCL_L;                              
+    SCL_L(IIC_SCL_GPIOx, SCL_PIN);
     I2C_DELAY();
  
     if(Data & 0x80)
     {
-      SDA_H;                         
+      SDA_H(IIC_SDA_GPIOx, SDA_PIN);
     }
     else
     {
-      SDA_L;                         
+      SDA_L(IIC_SDA_GPIOx, SDA_PIN);
     }
     Data <<= 1;
-    SCL_H;                              
+    SCL_H(IIC_SCL_GPIOx, SCL_PIN);
 		I2C_DELAY();
   }
-  SCL_L;                                   
+  SCL_L(IIC_SCL_GPIOx, SCL_PIN);
   I2C_DELAY();
 }
 
@@ -210,21 +224,24 @@ void I2C_WriteByte(uint8_t Data)
   * @param  None
   * @retval None
   */
-uint8_t I2C_ReadByte(uint8_t ack)
+static uint8_t I2C_ReadByte(uint8_t ack,
+										 GPIO_TypeDef *IIC_SDA_GPIOx, uint32_t SDA_PIN,
+									   GPIO_TypeDef *IIC_SCL_GPIOx, uint32_t SCL_PIN)
 {
   uint8_t cnt = 0;
   static uint8_t data = 0;
   
 	data = 0;
-	I2C_SET_SDA_IN;
+	I2C_SET_SDA_IN(IIC_SDA_GPIOx, SDA_PIN);
+
   for(cnt=0; cnt<8; cnt++)
   {
-    SCL_L;                                
+    SCL_L(IIC_SCL_GPIOx, SCL_PIN);                 
     I2C_DELAY();
 		
-    SCL_H;                             
+    SCL_H(IIC_SCL_GPIOx, SCL_PIN);                             
     data <<= 1;
-    if(SDA_READ)
+    if(SDA_READ(IIC_SDA_GPIOx, SDA_PIN))
     {
       data |= 0x01;                              
     }
@@ -233,11 +250,11 @@ uint8_t I2C_ReadByte(uint8_t ack)
 	
   if(ack == 1)
   {
-     I2C_NoAck();
+     I2C_NoAck(IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
   }
   else
   {
-     I2C_Ack();
+		 I2C_Ack(IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
   }
   return data;                                  
 }
@@ -247,21 +264,24 @@ uint8_t I2C_ReadByte(uint8_t ack)
   * @param  None
   * @retval None
   */
-int Common_WriteByte(uint16_t device, uint16_t addr, uint8_t data)
+int Common_WriteByte(uint16_t device, uint16_t addr, uint8_t data, 
+										 GPIO_TypeDef *IIC_SDA_GPIOx, uint32_t SDA_PIN,
+										 GPIO_TypeDef *IIC_SCL_GPIOx, uint32_t SCL_PIN)
 {
-	I2C_Start();
-	I2C_WriteByte(device << 1 | 0x00);
-  if(!I2C_GetAck())
+	I2C_Start(IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
+	I2C_WriteByte(device << 1 | 0x00, IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
+  if(!I2C_GetAck(IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN))
   {
-		I2C_Stop();
+		I2C_Stop(IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
 		return 0;
   }
 	
-  I2C_WriteByte((uint8_t)(addr&0x00FF));   
-  I2C_GetAck();
-  I2C_WriteByte(data);
-	I2C_GetAck();
-  I2C_Stop();
+  I2C_WriteByte((uint8_t)(addr&0x00FF), IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);  
+	// Must get ack to avoid slaver happen bus error.
+  I2C_GetAck(IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
+  I2C_WriteByte(data, IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
+	I2C_GetAck(IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
+  I2C_Stop(IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
 	return 1;
 }
 
@@ -270,28 +290,31 @@ int Common_WriteByte(uint16_t device, uint16_t addr, uint8_t data)
   * @param  None
   * @retval None
   */
-int Common_ReadByte(uint16_t device, uint16_t addr, uint8_t *data)
+int Common_ReadByte(uint16_t device, uint16_t addr, uint8_t *data,
+										GPIO_TypeDef *IIC_SDA_GPIOx, uint32_t SDA_PIN,
+										GPIO_TypeDef *IIC_SCL_GPIOx, uint32_t SCL_PIN)
 {
-	I2C_Start(); 
-	I2C_WriteByte(device << 1 | 0x00);
-  if(!I2C_GetAck())
+	I2C_Start(IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
+	I2C_WriteByte(device << 1 | 0x00, IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
+  if(!I2C_GetAck(IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN))
   {
-		I2C_Stop();
+		I2C_Stop(IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
 		return 0;
   } 
-	I2C_WriteByte((uint8_t)(addr & 0x00FF));
-	I2C_GetAck();
+	I2C_WriteByte((uint8_t)(addr & 0x00FF), IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
+	I2C_GetAck(IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
 	
-  I2C_Start();
-	I2C_WriteByte(device << 1 | 0x01);	
-	if(!I2C_GetAck())
+  I2C_Start(IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
+	I2C_WriteByte(device << 1 | 0x01, IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);	
+	if(!I2C_GetAck(IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN))
 	{
-		I2C_Stop();
+		I2C_Stop(IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
 		return 0;
   }
 	
-  *data = I2C_ReadByte(1);
-	I2C_Stop();
+  *data = I2C_ReadByte(1, IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
+	I2C_Stop(IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
 	return 1;
 }
+
 /************************ (C) COPYRIGHT wallea Hu *****END OF FILE****/

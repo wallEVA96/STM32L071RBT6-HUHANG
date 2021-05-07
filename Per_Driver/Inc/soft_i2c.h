@@ -34,14 +34,14 @@
 #endif /* USE_FULL_ASSERT */
 
 /* Exported Defines ------------------------------------------------------------*/
-uint8_t I2C_ReadByte(uint8_t ack);
-void I2C_WriteByte(uint8_t Data);
-uint8_t I2C_GetAck(void);
-void I2C_Stop(void);
-int I2C_Start(void);
-void Configure_SOFT_IIC_GPIO(void);
-int Common_WriteByte(uint16_t device, uint16_t addr, uint8_t data);
-int Common_ReadByte(uint16_t device, uint16_t addr, uint8_t *data);
+void Configure_SOFT_IIC_GPIO(GPIO_TypeDef *IIC_SDA_GPIOx, uint32_t SDA_PIN,
+														 GPIO_TypeDef *IIC_SCL_GPIOx, uint32_t SCL_PIN);
+int Common_WriteByte(uint16_t device, uint16_t addr, uint8_t data, 
+										 GPIO_TypeDef *IIC_SDA_GPIOx, uint32_t SDA_PIN,
+										 GPIO_TypeDef *IIC_SCL_GPIOx, uint32_t SCL_PIN);
+int Common_ReadByte(uint16_t device, uint16_t addr, uint8_t *data,
+										GPIO_TypeDef *IIC_SDA_GPIOx, uint32_t SDA_PIN,
+										GPIO_TypeDef *IIC_SCL_GPIOx, uint32_t SCL_PIN);
 
 #endif
 
