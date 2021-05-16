@@ -32,6 +32,9 @@ void init_hmcl5883(I2C_TypeDef *I2Cx)
   * @brief  get HMCL5883 data.
   * @param  None
   * @retval None
+	* @note 	periph i2c write hmcl5883 test.	 
+						struct hmcl5883_data tmp_hmcl5883 = get_data_from_hmcl5883(I2C3);
+						printf("hmcl5883 data, x: %d, y: %d, z: %d \r\n", tmp_hmcl5883.x, tmp_hmcl5883.y, tmp_hmcl5883.z);	
   */
 struct hmcl5883_data get_data_from_hmcl5883(I2C_TypeDef *I2Cx)
 {

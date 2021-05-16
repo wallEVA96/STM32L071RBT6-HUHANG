@@ -11,36 +11,72 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "math.h"
+#include "cfg_sys_clk.h"
 #include "cfg_led.h"
 #include "cfg_uartx.h"
 #include "cfg_i2c.h"
 #include "cfg_adc.h"
 #include "soft_i2c.h"
 #include "apply_hmcl5883.h"
+#include "cfg_low_power.h"
 
 /* Private typedef -----------------------------------------------------------*/
 
+/* Private variables ---------------------------------------------------------*/
+char GLOBAL_MCU_UID[25]= {0}; /* UID : 96bit--> 24 bytes + 0*/
+
+
 /* Private define ------------------------------------------------------------*/
+#define Get_Mcu_UID() do{snprintf(GLOBAL_MCU_UID, sizeof(GLOBAL_MCU_UID), "%08X%08X%08X", \
+												 LL_GetUID_Word0(), LL_GetUID_Word1(), LL_GetUID_Word2());} while(0)
 
 /* Private macro -------------------------------------------------------------*/
+#define IIC_SCL_GPIOx 			GPIOC
+#define SCL_PIN 						LL_GPIO_PIN_6
+#define IIC_SDA_GPIOx 			GPIOC
+#define SDA_PIN 						LL_GPIO_PIN_9
 
-/* Private variables ---------------------------------------------------------*/
-unsigned int GLOBAL_LOOP_TIME_OUT_VAL = 0;
-
-/* Private function prototypes -----------------------------------------------*/
-void SystemClock_Config(void);
-
+												 
+/**
+  * @brief  Display the current time and date.
+  * @param  None
+  * @retval None
+  */
+/* Buffers used for displaying Time and Date */
+uint8_t aShowTime[50] = {0};
+uint8_t aShowDate[50] = {0};
+void Show_RTC_Calendar(void)
+{
+  /* Note: need to convert in decimal value in using __LL_RTC_CONVERT_BCD2BIN helper macro */
+  /* Display time Format : hh:mm:ss */
+  sprintf((char*)aShowTime,"%.2d:%.2d:%.2d", __LL_RTC_CONVERT_BCD2BIN(LL_RTC_TIME_GetHour(RTC)), 
+          __LL_RTC_CONVERT_BCD2BIN(LL_RTC_TIME_GetMinute(RTC)), 
+          __LL_RTC_CONVERT_BCD2BIN(LL_RTC_TIME_GetSecond(RTC)));
+  /* Display date Format : mm-dd-yy */
+  sprintf((char*)aShowDate,"%.2d-%.2d-%.2d", __LL_RTC_CONVERT_BCD2BIN(LL_RTC_DATE_GetMonth(RTC)), 
+          __LL_RTC_CONVERT_BCD2BIN(LL_RTC_DATE_GetDay(RTC)), 
+          2000 + __LL_RTC_CONVERT_BCD2BIN(LL_RTC_DATE_GetYear(RTC)));
+}
+												 
 /**
   * @brief  Main program
   * @param  None
   * @retval None
   */
-extern __IO uint16_t aADCxConvertedData[3]; /* ADC group regular conversion data */
-
+												 
 int main(void)
 {
+	/* Get MCU UID To GLOBAL_MCU_UID Array */
+	Get_Mcu_UID();
+	/* St-link is invalid when use following function. */
+	//ReduceIOPowerConsumption();
   /* Configure the system clock to external crytal 8 MHz */
   SystemClock_Config();
+	/* Configure RTC for calender and wakeup by LSE */
+	Configure_RTC();
+	//Configure_RTC_Calendar();
+	Show_RTC_Calendar();
+
 	/* Configure LED on PD2 */
 	Configure_LED_GPIO();
 	/* Configure USART */
@@ -63,23 +99,20 @@ int main(void)
 	Configure_ADC1();
 	Activate_ADC1();
 	/* soft i2c configure.	 */
-	#define IIC_SCL_GPIOx 			GPIOC
-	#define SCL_PIN 						LL_GPIO_PIN_6
-	#define IIC_SDA_GPIOx 			GPIOC
-	#define SDA_PIN 						LL_GPIO_PIN_9
 	Configure_SOFT_IIC_GPIO(IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
 	
   /* Add your application code here */
-	printf("Hello, This is a USART2 printf debug\r\n");
+	printf("Manufacture Date: %s \r\n", aShowDate);
+	printf("Manufacture Time: %s \r\n", aShowTime);
+	printf("MCU Device ID : 0x%08X\r", LL_DBGMCU_GetDeviceID());
+	printf("MCU Revision ID : 0x%08X\r", LL_DBGMCU_GetRevisionID());
+	printf("MCU Device UID : 0x%s \r", GLOBAL_MCU_UID);
 	Buffer_Transfer_USARTx(USART5);
-	
-  /* Infinite loop */
+
+	EnterSTOPMode();
+	/* Infinite loop */
   while (1)
-  {
-		/* periph i2c write hmcl5883 test.	 */
-//	struct hmcl5883_data tmp_hmcl5883 = get_data_from_hmcl5883(I2C3);
-//	printf("hmcl5883 data, x: %d, y: %d, z: %d \r\n", tmp_hmcl5883.x, tmp_hmcl5883.y, tmp_hmcl5883.z);	
-		
+  {	
 		/* soft i2c write hmcl5883 test.	 */
 		Common_WriteByte(0x1e, 0x00, 0x10, IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
 		Common_WriteByte(0x1e, 0x02, 0x00, IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
@@ -87,70 +120,18 @@ int main(void)
 		Common_ReadByte(0x1e, 0x04, &tmp, IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
 		printf("hmcl id: %02x \r",  tmp);
 		
-		/* adc sample include vref:  chn4:  temp: */
+		/* adc sample comprise vref:  chn4:  temp: */
 		struct adc1_data cal_ad_data = ConversionStartPoll_ADC1_GrpRegular();
 		printf("vref: %d, chn4: %d, temp: %d \r", cal_ad_data.vref, cal_ad_data.chn4, cal_ad_data.temp);
 		
-		LL_mDelay(LED_BLINK_SLOW);		
 		TR_Loop_Test_USARTx(USART5);
-		LL_GPIO_TogglePin(LED_GPIO_PORT, LED2_PIN);	
+		LL_mDelay(500);
 	}
 	return 0;
 }
 
-/* Private functions ---------------------------------------------------------*/
-/**
-  * @brief  System Clock Configuration
-  *         The system Clock is configured as follow : 
-  *            System Clock source            = MSI
-  *            SYSCLK(Hz)                     = 2097000
-  *            HCLK(Hz)                       = 2097000
-  *            AHB Prescaler                  = 1
-  *            APB1 Prescaler                 = 1
-  *            APB2 Prescaler                 = 1
-  *            Flash Latency(WS)              = 0
-  *            Main regulator output voltage  = Scale3 mode
-  * @retval None
-  */
-void SystemClock_Config(void)
-{
-  /* HSE configuration and activation */
-  LL_RCC_PLL_Disable();
-  /* Set new latency */
-  LL_FLASH_SetLatency(LL_FLASH_LATENCY_1);
-
-  LL_RCC_HSE_Enable();
-  while(LL_RCC_HSE_IsReady() != 1) 
-  {
-  };
-
-  /* Sysclk activation  */
-  LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
-  LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_HSE);
-  while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_HSE) 
-  {
-  };
-  
-  /* Set APB1 & APB2 prescaler*/
-  LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_1);
-  LL_RCC_SetAPB2Prescaler(LL_RCC_APB2_DIV_1);
-
-  /* Set systick to 1ms in using frequency set to 2MHz */
-	/* @attention: Disable PLL and DIV */
-  LL_Init1msTick(HSE_VALUE); 
-
-  /* Update CMSIS variable (which can be updated also through SystemCoreClockUpdate function) */
-  LL_SetSystemCoreClock(HSE_VALUE);  
-
-  /* Enable Power Control clock */
-  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
-  /* The voltage scaling allows optimizing the power consumption when the device is 
-     clocked below the maximum system frequency.
-		 To update the voltage scaling value regarding system frequency refer to product datasheet.  */
-  LL_PWR_SetRegulVoltageScaling(LL_PWR_REGU_VOLTAGE_SCALE2);
-}
 /* ==============   BOARD SPECIFIC CONFIGURATION CODE END      ============== */
-
+/* Private functions ---------------------------------------------------------*/
 #ifdef  USE_FULL_ASSERT
 /**
   * @brief  Reports the name of the source file and the source line number
@@ -169,26 +150,6 @@ void assert_failed(uint8_t *file, uint32_t line)
   {
   }
 }
-
-/**
-  * @brief  
-  * @param  
-  * @param  
-  * @retval None
-  */
-char LOOP_IS_TIME_OUT_xMS(void)
-{
-  /* Infinite loop */
-	if(LL_SYSTICK_IsActiveCounterFlag())
-		GLOBAL_LOOP_TIME_OUT_VAL--;
-	return (GLOBAL_LOOP_TIME_OUT_VAL==0)?1:0;
-}
-/**
-  * @brief  Reports the name of the source file and the source line number
-  *         where the assert_param error has occurred.
-  * @param  file: pointer to the source file name
-  * @param  line: assert_param error line source number
-  * @retval None
-  */
 #endif
+
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

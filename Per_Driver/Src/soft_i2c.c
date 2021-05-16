@@ -30,13 +30,10 @@
   * @param  None
   * @retval None
   */
-#define I2C_DELAY_COUNT  20    // ~= 19.41khz
+#define I2C_DELAY_COUNT  2    // ~= 60khz
 __STATIC_INLINE void I2C_DELAY(void){
 		int tmp_i2c_elay_count = I2C_DELAY_COUNT;
-		do{
-			__NOP;  
-			__NOP;
-		}while(tmp_i2c_elay_count--);
+		while(tmp_i2c_elay_count--);
 }
 											
 /**

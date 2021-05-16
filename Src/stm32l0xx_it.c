@@ -23,6 +23,7 @@
 #include "stm32l0xx_it.h"
 #include "cfg_uartx.h"
 #include "cfg_i2c.h"
+#include "cfg_led.h"
 
 /** @addtogroup STM32L0xx_LL_Examples
   * @{
@@ -175,6 +176,25 @@ void DMA1_Channel1_IRQHandler(void)
     LL_DMA_ClearFlag_TE1(DMA1);
     
     /* Call interruption treatment function */
+  }
+}
+
+/**
+  * Brief   This function handles RTC interrupt request.
+  * Param   None
+  * Retval  None
+  */
+void RTC_IRQHandler(void)
+{
+  /* Check WUT flag */
+  if(LL_RTC_IsActiveFlag_WUT(RTC) == 1)
+  {
+    /* Reset Wake up flag */
+    LL_RTC_ClearFlag_WUT(RTC); 
+    /* clear exti line 20 flag */
+    LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_20);
+    
+		LL_GPIO_TogglePin(LED_GPIO_PORT, LED2_PIN);
   }
 }
 /**
