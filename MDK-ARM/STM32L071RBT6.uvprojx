@@ -537,6 +537,26 @@
               <FileType>1</FileType>
               <FilePath>..\Per_Driver\Src\cfg_i2c.c</FilePath>
             </File>
+            <File>
+              <FileName>cfg_adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Per_Driver\Src\cfg_adc.c</FilePath>
+            </File>
+            <File>
+              <FileName>soft_i2c.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Per_Driver\Src\soft_i2c.c</FilePath>
+            </File>
+            <File>
+              <FileName>cfg_low_pwr.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Per_Driver\Src\cfg_low_pwr.c</FilePath>
+            </File>
+            <File>
+              <FileName>cfg_sys_clk.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Per_Driver\Src\cfg_sys_clk.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
