@@ -182,7 +182,7 @@ void Configure_RTC(void)
   /*##-5- Enter in initialization mode #######################################*/
   if (Enter_RTC_InitMode() != RTC_ERROR_NONE)   
   {
-
+			printf("RTC enter init error\r");
   }
 
   /*##-6- Configure RTC ######################################################*/
@@ -212,11 +212,12 @@ void Configure_RTC(void)
   /* Wait until it is allow to modify wake up reload value */
   while (LL_RTC_IsActiveFlag_WUTW(RTC) != 1)
   {
+		
   }
   /* Setting the Wakeup time to 1 s
        If LL_RTC_WAKEUPCLOCK_CKSPRE is selected, the frequency is 1Hz, 
        this allows to get a wakeup time equal to 1 s if the counter is 0x0 */
-  LL_RTC_WAKEUP_SetAutoReload(RTC, 4);
+  LL_RTC_WAKEUP_SetAutoReload(RTC, 29);
   LL_RTC_WAKEUP_SetClock(RTC, LL_RTC_WAKEUPCLOCK_CKSPRE);
   
   /* Enable wake up counter and wake up interrupt */
@@ -246,7 +247,7 @@ void Configure_RTC_Calendar(void)
   /*##-2- Enter in initialization mode ######################################*/
   if (Enter_RTC_InitMode() != RTC_ERROR_NONE)   
   {
-    
+		printf("RTC enter init error\r");
   }
 
   /*##-3- Configure the Date ################################################*/
@@ -261,7 +262,7 @@ void Configure_RTC_Calendar(void)
   /*##-5- Exit of initialization mode #######################################*/
   if (Exit_RTC_InitMode() != RTC_ERROR_NONE)   
   {
-		
+		printf("RTC exit init error\r");
   }
    
   /*##-6- Enable RTC registers write protection #############################*/

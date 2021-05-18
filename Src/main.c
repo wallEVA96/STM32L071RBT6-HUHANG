@@ -74,6 +74,7 @@ int main(void)
   SystemClock_Config();
 	/* Configure RTC for calender and wakeup by LSE */
 	Configure_RTC();
+	/* If enable watch dog, it's clock must more than rtc clock.*/
 	//Configure_RTC_Calendar();
 	Show_RTC_Calendar();
 
@@ -107,25 +108,27 @@ int main(void)
 	printf("MCU Device ID : 0x%08X\r", LL_DBGMCU_GetDeviceID());
 	printf("MCU Revision ID : 0x%08X\r", LL_DBGMCU_GetRevisionID());
 	printf("MCU Device UID : 0x%s \r", GLOBAL_MCU_UID);
-	Buffer_Transfer_USARTx(USART5);
+	Buffer_Transfer_USARTx(USART1);
 
-	EnterSTOPMode();
 	/* Infinite loop */
   while (1)
-  {	
+  {
 		/* soft i2c write hmcl5883 test.	 */
+		uint8_t tmp_i2c = 0;
 		Common_WriteByte(0x1e, 0x00, 0x10, IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
-		Common_WriteByte(0x1e, 0x02, 0x00, IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
-		uint8_t tmp = 0;
-		Common_ReadByte(0x1e, 0x04, &tmp, IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
-		printf("hmcl id: %02x \r",  tmp);
+		Common_WriteByte(0x1e, 0x02, 0x00, IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);	
+		Common_ReadByte(0x1e, 0x04, &tmp_i2c, IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
+		//printf("hmcl id: %02x \r",  tmp_i2c);
 		
 		/* adc sample comprise vref:  chn4:  temp: */
 		struct adc1_data cal_ad_data = ConversionStartPoll_ADC1_GrpRegular();
-		printf("vref: %d, chn4: %d, temp: %d \r", cal_ad_data.vref, cal_ad_data.chn4, cal_ad_data.temp);
-		
-		TR_Loop_Test_USARTx(USART5);
-		LL_mDelay(500);
+		printf("vref: %d, chn4: %d, temp: %d \r\n", cal_ad_data.vref, cal_ad_data.chn4, cal_ad_data.temp);
+		/* Enter stop here, MCU will get into deep sleep*/
+		EnterSTOPMode();
+		/* Choose External OSC */
+		SystemClock_Config();
+		/* Wait for USART is ready */
+		while((!(LL_USART_IsActiveFlag_TEACK(USART1))) || (!(LL_USART_IsActiveFlag_REACK(USART1)))){}
 	}
 	return 0;
 }

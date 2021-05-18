@@ -45,11 +45,7 @@ void ReduceIOPowerConsumption(void){
   */
 void EnterSTOPMode(void)
 { 
-	ReduceIOPowerConsumption();
-
-  ///* Enable the FLASH power down during Low Power Run mode */
-  //LL_FLASH_EnableRunPowerDown();
-
+	//ReduceIOPowerConsumption();
   /** Request to enter STOP mode
     * Following procedure describe in STM32L0xx Reference Manual
     * See PWR part, section Low-power modes, STOP mode

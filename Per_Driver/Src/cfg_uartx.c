@@ -18,7 +18,7 @@
   * @param  
   * @retval 
   */
-#define PRINTF_USART USART5
+#define PRINTF_USART USART1
 _ARMABI int fputc(int c, FILE * stream){
 		while (!LL_USART_IsActiveFlag_TXE(PRINTF_USART)){}
     LL_USART_TransmitData8(PRINTF_USART, (uint8_t) c);
@@ -238,8 +238,7 @@ void TR_Loop_Test_USARTx(USART_TypeDef *USARTx_INSTANCE)
 		if(LL_USART_IsActiveFlag_RXNE(USARTx_INSTANCE)){
 			
 			while (!LL_USART_IsActiveFlag_TXE(USARTx_INSTANCE)){}				
-			LL_USART_TransmitData8(USARTx_INSTANCE, LL_USART_ReceiveData8(USARTx_INSTANCE));
-			
+			LL_USART_TransmitData8(USARTx_INSTANCE, LL_USART_ReceiveData8(USARTx_INSTANCE));		
 		}
 }
 

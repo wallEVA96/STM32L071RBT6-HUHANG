@@ -24,6 +24,7 @@
 #include "cfg_uartx.h"
 #include "cfg_i2c.h"
 #include "cfg_led.h"
+#include "cfg_sys_clk.h"
 
 /** @addtogroup STM32L0xx_LL_Examples
   * @{
@@ -192,9 +193,7 @@ void RTC_IRQHandler(void)
     /* Reset Wake up flag */
     LL_RTC_ClearFlag_WUT(RTC); 
     /* clear exti line 20 flag */
-    LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_20);
-    
-		LL_GPIO_TogglePin(LED_GPIO_PORT, LED2_PIN);
+    LL_EXTI_ClearFlag_0_31(LL_EXTI_LINE_20);	
   }
 }
 /**
