@@ -7,6 +7,19 @@
   */
  /* Includes ------------------------------------------------------------------*/
 #include "cfg_low_power.h"
+ #include "cfg_sys_clk.h"
+
+/**
+  * @brief  Function to exit stop mode.
+  * @param  None
+  * @retval None
+  */
+void ReadyForNormalMode(void){
+		/* Choose External OSC */
+		SystemClock_Config();
+		/* Wait for USART is ready */
+		//while((!(LL_USART_IsActiveFlag_TEACK(USART1))) || (!(LL_USART_IsActiveFlag_REACK(USART1)))){}
+}
 
 /**
   * @brief  Function to reduce IO pin power consumption.
@@ -67,3 +80,4 @@ void EnterSTOPMode(void)
   /* Request Wait For Interrupt */
   __WFI();
 }
+

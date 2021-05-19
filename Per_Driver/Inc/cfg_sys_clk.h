@@ -42,7 +42,7 @@
   */
 #include"stdio.h" 
 void SystemClock_Config(void);
-void Configure_RTC(void);
+void Configure_RTC(int wu_sec);
 void Configure_RTC_Calendar(void);
 
 #endif 

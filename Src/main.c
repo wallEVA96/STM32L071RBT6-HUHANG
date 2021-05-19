@@ -35,8 +35,9 @@ char GLOBAL_MCU_UID[25]= {0}; /* UID : 96bit--> 24 bytes + 0*/
 #define SCL_PIN 						LL_GPIO_PIN_6
 #define IIC_SDA_GPIOx 			GPIOC
 #define SDA_PIN 						LL_GPIO_PIN_9
+#define WAKE_UP_TIME				10   // : 0 - oo
 
-												 
+/* Private function -------------------------------------------------------------*/											 
 /**
   * @brief  Display the current time and date.
   * @param  None
@@ -73,7 +74,7 @@ int main(void)
   /* Configure the system clock to external crytal 8 MHz */
   SystemClock_Config();
 	/* Configure RTC for calender and wakeup by LSE */
-	Configure_RTC();
+	Configure_RTC(WAKE_UP_TIME);
 	/* If enable watch dog, it's clock must more than rtc clock.*/
 	//Configure_RTC_Calendar();
 	Show_RTC_Calendar();
@@ -89,8 +90,7 @@ int main(void)
 	Configure_I2Cx_Master(I2C3);
 	/* Configure Hardware I2C Slave, 
 		 Slaver I2C1 do loop communication with master I2C3,
-		 Test pass. 
-	*/
+		 Test pass. */
 	//Configure_I2Cx_Slave(I2C1);
 	init_hmcl5883(I2C3);
 	/* Configure ADC1 about Vref, Channel 4 on PA4.
@@ -103,16 +103,17 @@ int main(void)
 	Configure_SOFT_IIC_GPIO(IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
 	
   /* Add your application code here */
+	Buffer_Transfer_USARTx(USART1);
 	printf("Manufacture Date: %s \r\n", aShowDate);
 	printf("Manufacture Time: %s \r\n", aShowTime);
 	printf("MCU Device ID : 0x%08X\r", LL_DBGMCU_GetDeviceID());
 	printf("MCU Revision ID : 0x%08X\r", LL_DBGMCU_GetRevisionID());
 	printf("MCU Device UID : 0x%s \r", GLOBAL_MCU_UID);
-	Buffer_Transfer_USARTx(USART1);
 
 	/* Infinite loop */
   while (1)
   {
+		LL_GPIO_ResetOutputPin(LED_GPIO_PORT, LED2_PIN);
 		/* soft i2c write hmcl5883 test.	 */
 		uint8_t tmp_i2c = 0;
 		Common_WriteByte(0x1e, 0x00, 0x10, IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
@@ -123,12 +124,13 @@ int main(void)
 		/* adc sample comprise vref:  chn4:  temp: */
 		struct adc1_data cal_ad_data = ConversionStartPoll_ADC1_GrpRegular();
 		printf("vref: %d, chn4: %d, temp: %d \r\n", cal_ad_data.vref, cal_ad_data.chn4, cal_ad_data.temp);
+		
+		
 		/* Enter stop here, MCU will get into deep sleep*/
+		LL_GPIO_SetOutputPin(LED_GPIO_PORT, LED2_PIN);
 		EnterSTOPMode();
-		/* Choose External OSC */
-		SystemClock_Config();
-		/* Wait for USART is ready */
-		while((!(LL_USART_IsActiveFlag_TEACK(USART1))) || (!(LL_USART_IsActiveFlag_REACK(USART1)))){}
+		/* Prepare for enter normal mode */
+		ReadyForNormalMode();
 	}
 	return 0;
 }

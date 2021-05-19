@@ -21,6 +21,6 @@
 /* Exported Function ------------------------------------------------------------*/
 void ReduceIOPowerConsumption(void);
 void EnterSTOPMode(void);
-
+void ReadyForNormalMode(void);
 #endif 
 /************************ (C) COPYRIGHT walleva *****END OF FILE****/

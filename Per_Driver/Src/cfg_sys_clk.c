@@ -68,7 +68,7 @@ void SystemClock_Config(void)
 		 To update the voltage scaling value regarding system frequency refer to product datasheet.  */
   LL_PWR_SetRegulVoltageScaling(LL_PWR_REGU_VOLTAGE_SCALE2);
   /* Ensure that HSE is wake-up system clock */ 
-	//LL_RCC_SetClkAfterWakeFromStop(LL_RCC_STOP_WAKEUPCLOCK_MSI);
+	LL_RCC_SetClkAfterWakeFromStop(LL_RCC_STOP_WAKEUPCLOCK_MSI);
 }
 
 /**
@@ -146,7 +146,7 @@ uint32_t Exit_RTC_InitMode(void)
   * @param  void
   * @retval None
   */
-void Configure_RTC(void)
+void Configure_RTC(int wu_sec)
 {
   /*##-1- Enables the PWR Clock and Enables access to the backup domain #######*/
   /* To change the source clock of the RTC feature (LSE, LSI), you have to:
@@ -217,7 +217,7 @@ void Configure_RTC(void)
   /* Setting the Wakeup time to 1 s
        If LL_RTC_WAKEUPCLOCK_CKSPRE is selected, the frequency is 1Hz, 
        this allows to get a wakeup time equal to 1 s if the counter is 0x0 */
-  LL_RTC_WAKEUP_SetAutoReload(RTC, 29);
+  LL_RTC_WAKEUP_SetAutoReload(RTC, wu_sec);
   LL_RTC_WAKEUP_SetClock(RTC, LL_RTC_WAKEUPCLOCK_CKSPRE);
   
   /* Enable wake up counter and wake up interrupt */
