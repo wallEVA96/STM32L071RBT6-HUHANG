@@ -35,7 +35,7 @@ char GLOBAL_MCU_UID[25]= {0}; /* UID : 96bit--> 24 bytes + 0*/
 #define SCL_PIN 						LL_GPIO_PIN_6
 #define IIC_SDA_GPIOx 			GPIOC
 #define SDA_PIN 						LL_GPIO_PIN_9
-#define WAKE_UP_TIME				10   // : 0 - oo
+#define WAKE_UP_TIME				9   // : 0 - oo
 
 /* Private function -------------------------------------------------------------*/											 
 /**
@@ -78,7 +78,6 @@ int main(void)
 	/* If enable watch dog, it's clock must more than rtc clock.*/
 	//Configure_RTC_Calendar();
 	Show_RTC_Calendar();
-
 	/* Configure LED on PD2 */
 	Configure_LED_GPIO();
 	/* Configure USART */
@@ -86,6 +85,9 @@ int main(void)
 	Configure_USARTx(USART2);
 	Configure_USARTx(USART4);
 	Configure_USARTx(USART5);
+	/* init IWDG */
+	Check_IWDG_Reset();
+  Configure_IWDG(WAKE_UP_TIME*3/2);
 	/* Configure Hardware I2C Master */
 	Configure_I2Cx_Master(I2C3);
 	/* Configure Hardware I2C Slave, 
@@ -104,11 +106,11 @@ int main(void)
 	
   /* Add your application code here */
 	Buffer_Transfer_USARTx(USART1);
-	printf("Manufacture Date: %s \r\n", aShowDate);
-	printf("Manufacture Time: %s \r\n", aShowTime);
-	printf("MCU Device ID : 0x%08X\r", LL_DBGMCU_GetDeviceID());
+	printf("Manufacture Date: %s\r\n", aShowDate);
+	printf("Manufacture Time: %s\r\n", aShowTime);
+	printf("MCU Device ID : 0x%08X\r\n", LL_DBGMCU_GetDeviceID());
 	printf("MCU Revision ID : 0x%08X\r", LL_DBGMCU_GetRevisionID());
-	printf("MCU Device UID : 0x%s \r", GLOBAL_MCU_UID);
+	printf("MCU Device UID : 0x%s\r\n", GLOBAL_MCU_UID);
 
 	/* Infinite loop */
   while (1)
@@ -131,6 +133,8 @@ int main(void)
 		EnterSTOPMode();
 		/* Prepare for enter normal mode */
 		ReadyForNormalMode();
+		/* Refresh IWDG down-counter to default value */
+		LL_IWDG_ReloadCounter(IWDG);
 	}
 	return 0;
 }

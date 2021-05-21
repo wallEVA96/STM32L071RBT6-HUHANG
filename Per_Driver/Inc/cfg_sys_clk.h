@@ -44,6 +44,8 @@
 void SystemClock_Config(void);
 void Configure_RTC(int wu_sec);
 void Configure_RTC_Calendar(void);
+void Configure_IWDG(int ww_sec);
+void Check_IWDG_Reset(void);
 
 #endif 
 /************************ (C) COPYRIGHT walleva hu *****END OF FILE****/
