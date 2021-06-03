@@ -20,8 +20,8 @@
   */
 #define PRINTF_USART USART1
 _ARMABI int fputc(int c, FILE * stream){
-		while (!LL_USART_IsActiveFlag_TXE(PRINTF_USART)){}
     LL_USART_TransmitData8(PRINTF_USART, (uint8_t) c);
+		while (!LL_USART_IsActiveFlag_TC(PRINTF_USART)){}
 		return c;
 }
 
@@ -201,25 +201,25 @@ void Configure_USARTx(USART_TypeDef *USARTx_INSTANCE)
   * @param  None
   * @retval None
   */
-const uint8_t aStringToSend[] = "HUHANG-STM32L071RBT6\r\n";
-void Buffer_Transfer_USARTx(USART_TypeDef *USARTx_INSTANCE)
+void Buffer_Transfer_USARTx(USART_TypeDef *USARTx_INSTANCE, uint8_t *buffer, size_t buf_size)
 {
 	uint8_t ubSend = 0;
+	
   /* Send characters one per one, until last char to be sent */
-  while (ubSend < sizeof(aStringToSend))
+  while (ubSend < buf_size)
   {
     /* Wait for TXE flag to be raised */
-    while (!LL_USART_IsActiveFlag_TXE(USARTx_INSTANCE)){}
-
+    //while (!LL_USART_IsActiveFlag_TXE(USARTx_INSTANCE)){}
+		while	(!LL_USART_IsActiveFlag_TC(USARTx_INSTANCE)) {}
     /* If last char to be sent, clear TC flag */
-    if (ubSend == (sizeof(aStringToSend) - 1))
+    if (ubSend == (buf_size - 1))
     {
       LL_USART_ClearFlag_TC(USARTx_INSTANCE); 
     }
 
     /* Write character in Transmit Data register.
        TXE flag is cleared by writing data in TDR register */
-    LL_USART_TransmitData8(USARTx_INSTANCE, aStringToSend[ubSend++]);
+    LL_USART_TransmitData8(USARTx_INSTANCE, buffer[ubSend++]);
 	}
 
   /* Wait for TC flag to be raised for last char */

@@ -312,7 +312,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>1</Optim>
+            <Optim>2</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -516,6 +516,11 @@
               <FileName>apply_hmcl5883.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\App_Driver\Src\apply_hmcl5883.c</FilePath>
+            </File>
+            <File>
+              <FileName>apply_bc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\App_Driver\Src\apply_bc.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -19,8 +19,8 @@
 /* Exported Defines ------------------------------------------------------------*/
 
 /* Exported Function ------------------------------------------------------------*/
-void ReduceIOPowerConsumption(void);
-void EnterSTOPMode(void);
-void ReadyForNormalMode(void);
+void Reduce_IO_Power_Consumption(void);
+void Enter_STOP_Mode(void);
+void Ready_For_NormalMode(void);
 #endif 
 /************************ (C) COPYRIGHT walleva *****END OF FILE****/

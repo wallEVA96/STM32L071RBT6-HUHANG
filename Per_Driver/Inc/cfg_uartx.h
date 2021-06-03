@@ -32,10 +32,12 @@
 #if defined(USE_FULL_ASSERT)
 #include "stm32_assert.h"
 #endif /* USE_FULL_ASSERT */
+#include "stdio.h" 
+#include "string.h" 
 
 /* Exported Defines ------------------------------------------------------------*/
 void Configure_USARTx(USART_TypeDef *USARTx_INSTANCE);
-void Buffer_Transfer_USARTx(USART_TypeDef *USARTx_INSTANCE);
+void Buffer_Transfer_USARTx(USART_TypeDef *USARTx_INSTANCE, uint8_t *buffer, size_t buf_size);
 void TR_Loop_Test_USARTx(USART_TypeDef *USARTx_INSTANCE);
 
 /**
@@ -43,7 +45,6 @@ void TR_Loop_Test_USARTx(USART_TypeDef *USARTx_INSTANCE);
   * @param  None
   * @retval None
   */
-#include"stdio.h" 
 
 #endif /* __CFG_UARTX_H */
 

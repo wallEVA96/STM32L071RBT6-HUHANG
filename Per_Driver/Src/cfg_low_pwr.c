@@ -14,11 +14,10 @@
   * @param  None
   * @retval None
   */
-void ReadyForNormalMode(void){
-		/* Choose External OSC */
+void Ready_For_NormalMode(void){
 		SystemClock_Config();
 		/* Wait for USART is ready */
-		//while((!(LL_USART_IsActiveFlag_TEACK(USART1))) || (!(LL_USART_IsActiveFlag_REACK(USART1)))){}
+		LL_USART_RequestTxDataFlush(USART1);
 }
 
 /**
@@ -26,7 +25,7 @@ void ReadyForNormalMode(void){
   * @param  None
   * @retval None
   */
-void ReduceIOPowerConsumption(void){
+void Reduce_IO_Power_Consumption(void){
 	
  LL_GPIO_InitTypeDef gpio_initstruct = {LL_GPIO_PIN_ALL, LL_GPIO_MODE_ANALOG, 
                                          LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_OUTPUT_PUSHPULL, 
@@ -56,7 +55,7 @@ void ReduceIOPowerConsumption(void){
   * @param  None
   * @retval None
   */
-void EnterSTOPMode(void)
+void Enter_STOP_Mode(void)
 { 
 	//ReduceIOPowerConsumption();
   /** Request to enter STOP mode

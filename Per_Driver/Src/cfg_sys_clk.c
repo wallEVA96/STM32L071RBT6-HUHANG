@@ -155,26 +155,44 @@ void Configure_RTC(int wu_sec)
      - Reset the Back up Domain
      - Configure the needed RTC clock source */
   LL_PWR_EnableBkUpAccess();
-  
-  /*##-2- Configure LSE as RTC clock source ###############################*/
+#define RTC_CLOCK_SOURCE_LSI
+#ifdef RTC_CLOCK_SOURCE_LSE
   /* Enable LSE only if disabled.*/
- if (LL_RCC_LSE_IsReady() == 0)
+  if (LL_RCC_LSE_IsReady() == 0)
   {
-		LL_RCC_ForceBackupDomainReset();
-		LL_RCC_ReleaseBackupDomainReset();
-		LL_RCC_LSE_Enable();
+    LL_RCC_ForceBackupDomainReset();
+    LL_RCC_ReleaseBackupDomainReset();
+    LL_RCC_LSE_Enable();
 
-		while (LL_RCC_LSE_IsReady() != 1)
-		{
+    while (LL_RCC_LSE_IsReady() != 1)
+    {
 
-		}
-	}
-	/* Choose LSE to */
-	LL_RCC_SetRTCClockSource(LL_RCC_RTC_CLKSOURCE_LSE);
-	
-	/*##-3- Enable RTC peripheral Clocks #######################################*/
-	/* Enable RTC Clock */ 
-	LL_RCC_EnableRTC();
+    }
+    LL_RCC_SetRTCClockSource(LL_RCC_RTC_CLKSOURCE_LSE);
+    
+    /*##-3- Enable RTC peripheral Clocks #######################################*/
+    /* Enable RTC Clock */ 
+    LL_RCC_EnableRTC();
+  }
+#elif defined(RTC_CLOCK_SOURCE_LSI)
+  /* Enable LSI */
+  LL_RCC_LSI_Enable();
+
+  while (LL_RCC_LSI_IsReady() != 1)
+  {
+		
+  }
+  LL_RCC_ForceBackupDomainReset();
+  LL_RCC_ReleaseBackupDomainReset();
+  LL_RCC_SetRTCClockSource(LL_RCC_RTC_CLKSOURCE_LSI);
+
+  /*##-3- Enable RTC peripheral Clocks #######################################*/
+  /* Enable RTC Clock */ 
+  LL_RCC_EnableRTC();
+
+#else
+	#error "configure clock for RTC"
+#endif
 
   /*##-4- Disable RTC registers write protection ##############################*/
   LL_RTC_DisableWriteProtection(RTC);
@@ -277,11 +295,11 @@ void Configure_RTC_Calendar(void)
   * @param  None
   * @retval None
   */
-void Configure_IWDG(int ww_sec)
+void Configure_IWDG(int iw_sec)
 {
   /* Enable the peripheral clock of DBG register (uncomment for debug purpose) */
   /* ------------------------------------------------------------------------- */
-  /*  LL_DBGMCU_APB1_GRP1_FreezePeriph(LL_DBGMCU_APB1_GRP1_IWDG_STOP); */
+  LL_DBGMCU_APB1_GRP1_FreezePeriph(LL_DBGMCU_APB1_GRP1_IWDG_STOP);
   
   /* Enable the peripheral clock IWDG */
   /* -------------------------------- */
@@ -301,7 +319,7 @@ void Configure_IWDG(int ww_sec)
   LL_IWDG_Enable(IWDG);                             /* (1) */
   LL_IWDG_EnableWriteAccess(IWDG);                  /* (2) */
   LL_IWDG_SetPrescaler(IWDG, LL_IWDG_PRESCALER_256);  /* (3) */
-  LL_IWDG_SetReloadCounter(IWDG, ww_sec*0x7D);            /* (4) */
+  LL_IWDG_SetReloadCounter(IWDG, iw_sec*0x9D);       /* (4)   40khz */ 
   while (LL_IWDG_IsReady(IWDG) != 1)                /* (5) */
   {
   }

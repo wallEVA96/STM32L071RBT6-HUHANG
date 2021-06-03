@@ -25,6 +25,7 @@
 #include "cfg_i2c.h"
 #include "cfg_led.h"
 #include "cfg_sys_clk.h"
+#include "apply_bc.h"
 
 /** @addtogroup STM32L0xx_LL_Examples
   * @{
@@ -120,12 +121,16 @@ void SysTick_Handler(void)
 void USART2_IRQHandler(void)
 {
   /* Check RXNE flag value in ISR register */
-  if(LL_USART_IsActiveFlag_RXNE(USART2) && LL_USART_IsEnabledIT_RXNE(USART2))
+  if(LL_USART_IsActiveFlag_RXNE(USART2)) //&& LL_USART_IsEnabledIT_RXNE(USART2))
   {
     /* RXNE flag will be cleared by reading of RDR register (done in call) */
     /* Call function in charge of handling Character reception */
-		LL_USART_TransmitData8(USART2, LL_USART_ReceiveData8(USART2));
-  }
+		global_bcxx_response[global_bcxx_res_index] = LL_USART_ReceiveData8(USART2);
+		if(global_bcxx_res_index >= BC_RES_LEN-1)
+				global_bcxx_res_index = 0;
+		else
+				global_bcxx_res_index++;
+	}
   else
   {
     /* Call Error function */
