@@ -79,12 +79,12 @@ int main(void)
 	/* Close all io pin, St-link is invalid when use following function. */
 	Reduce_IO_Power_Consumption();
 	/* Configure RTC for calender and wakeup by LSE */
-	Configure_RTC(WAKE_UP_SEC);
-#endif
-	
+	Configure_RTC(WAKE_UP_SEC);	
 	/* Init RTC Calender */
 	Configure_RTC_Calendar();
 	Show_RTC_Calendar();
+#endif
+
 	/* Configure USART */
 	Configure_USARTx(USART1);
 	Configure_USARTx(USART2);
@@ -112,7 +112,7 @@ int main(void)
 	/* soft i2c configure.	 */
 	Configure_SOFT_IIC_GPIO(IIC_SDA_GPIOx, SDA_PIN, IIC_SCL_GPIOx, SCL_PIN);
 	
-  /* Add your application code here */
+	/* Add your application code here */
 	static uint8_t aStringToSend[] = "HUHANG-STM32L071RBT6\r\n";
 	Buffer_Transfer_USARTx(USART1, aStringToSend, sizeof(aStringToSend));
 	printf("Manufacture Date: %s\r\n", aShowDate);
